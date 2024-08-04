@@ -25,6 +25,7 @@ services:
       - "-q"
     volumes:
       - ".:/app"
+      - "exclude:/app/.git"
     ports:
       - "8080:8000"
     environment:
@@ -50,8 +51,12 @@ services:
       - "1664:80"
     volumes:
       - "./docker/nginx_block.conf:/opt/bitnami/nginx/conf/server_blocks/proxy.conf:ro"
+    depends_on:
+      - app
   attacker:
     build:
       context:  ./docker/attacker
     depends_on:
       - app
+volumes:
+  exclude:

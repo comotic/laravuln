@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-echo "Generating malicious activity..."
-
 sleep 20
+
+echo "Generating malicious activity..."
 
 while IFS="" read -r p || [ -n "$p" ]
 do
