@@ -1,0 +1,57 @@
+services:
+  app-init:
+    image: bitnami/laravel:latest
+    volumes:
+      - ".:/app"
+    entrypoint: "/bin/bash"
+    command:
+      - "-c"
+      - "sleep 15 && php /app/artisan migrate:fresh --seed --schema-path=/non --force && php /app/artisan optimize"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_DATABASE=laravuln
+      - DB_PASSWORD=r6VkejvvvuajnF288LCHPJhdG
+    depends_on:
+      - mariadb
+  app:
+    build: .
+    command:
+      - "/opt/bitnami/scripts/laravel/run.sh"
+      - "-q"
+    volumes:
+      - ".:/app"
+    ports:
+      - "8080:8000"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_DATABASE=laravuln
+      - DB_PASSWORD=r6VkejvvvuajnF288LCHPJhdG
+    depends_on:
+      - app-init
+  mariadb:
+    build:
+      context: ./docker/mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=r6VkejvvvuajnF288LCHPJhdG
+      - MARIADB_DATABASE=laravuln
+  nginx:
+    image: bitnami/nginx:latest
+    ports:
+      - "1664:80"
+    volumes:
+      - "./docker/nginx_block.conf:/opt/bitnami/nginx/conf/server_blocks/proxy.conf:ro"
+  attacker:
+    build:
+      context:  ./docker/attacker
+    depends_on:
+      - app
